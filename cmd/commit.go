@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/atotto/clipboard"
 	"github.com/hieplp/pr-pilot/internal/config"
 	"github.com/hieplp/pr-pilot/internal/git"
 	"github.com/hieplp/pr-pilot/internal/prompt"
@@ -53,7 +55,9 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 	system, user := prompt.CommitPrompt(diff)
 
 	for {
-		msg, err := p.Complete(cmd.Context(), system, user)
+		msg, err := tui.Spin("Generating commit message…", func() (string, error) {
+			return p.Complete(cmd.Context(), system, user)
+		})
 		if err != nil {
 			return err
 		}
@@ -76,6 +80,13 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 			fmt.Println(result.Content)
 			if doCommit {
 				return git.Commit(result.Content)
+			}
+			return nil
+		case tui.ActionCopy:
+			if err := clipboard.WriteAll(result.Content); err != nil {
+				fmt.Fprintf(os.Stderr, "clipboard: %v\n", err)
+			} else {
+				fmt.Println("Copied to clipboard.")
 			}
 			return nil
 		case tui.ActionRegenerate:

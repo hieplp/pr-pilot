@@ -17,6 +17,7 @@ const (
 	ActionAccept Action = iota
 	ActionEdit
 	ActionRegenerate
+	ActionCopy
 	ActionQuit
 )
 
@@ -73,6 +74,8 @@ func (m reviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.action = ActionEdit
 	case "r":
 		m.action = ActionRegenerate
+	case "c":
+		m.action = ActionCopy
 	case "q", "ctrl+c", "esc":
 		m.action = ActionQuit
 	default:
@@ -105,10 +108,11 @@ func (m reviewModel) View() string {
 		return ""
 	}
 	hints := fmt.Sprintf(
-		"%s accept  %s edit  %s regenerate  %s quit",
+		"%s accept  %s edit  %s regenerate  %s copy  %s quit",
 		keyStyle.Render("[a/↵]"),
 		keyStyle.Render("[e]"),
 		keyStyle.Render("[r]"),
+		keyStyle.Render("[c]"),
 		keyStyle.Render("[q]"),
 	)
 	return labelStyle.Render("Generated output") + "\n\n" +

@@ -3,9 +3,11 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
+	"github.com/atotto/clipboard"
 	"github.com/hieplp/pr-pilot/internal/config"
 	"github.com/hieplp/pr-pilot/internal/git"
 	"github.com/hieplp/pr-pilot/internal/prompt"
@@ -83,7 +85,9 @@ func runPR(cmd *cobra.Command, _ []string) error {
 	system, user := prompt.PRPrompt(branch, base, diff, log)
 
 	for {
-		msg, err := p.Complete(cmd.Context(), system, user)
+		msg, err := tui.Spin("Generating PR description…", func() (string, error) {
+			return p.Complete(cmd.Context(), system, user)
+		})
 		if err != nil {
 			return err
 		}
@@ -103,6 +107,13 @@ func runPR(cmd *cobra.Command, _ []string) error {
 			case tui.ActionAccept, tui.ActionEdit:
 				fmt.Println(result.Content)
 				body = result.Content
+			case tui.ActionCopy:
+				if err := clipboard.WriteAll(result.Content); err != nil {
+					fmt.Fprintf(os.Stderr, "clipboard: %v\n", err)
+				} else {
+					fmt.Println("Copied to clipboard.")
+				}
+				return nil
 			case tui.ActionRegenerate:
 				continue
 			case tui.ActionQuit:
