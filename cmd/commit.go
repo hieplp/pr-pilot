@@ -29,8 +29,13 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
-	providerFlag, _ := cmd.Flags().GetString("provider")
-	modelFlag, _ := cmd.Flags().GetString("model")
+	var providerFlag, modelFlag string
+	if cmd.Flags().Changed("provider") {
+		providerFlag, _ = cmd.Flags().GetString("provider")
+	}
+	if cmd.Flags().Changed("model") {
+		modelFlag, _ = cmd.Flags().GetString("model")
+	}
 	cfg.Override(providerFlag, modelFlag)
 
 	diff, err := git.StagedDiff()

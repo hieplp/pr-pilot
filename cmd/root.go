@@ -26,6 +26,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().String("provider", "claude", "LLM provider: claude, openai, ollama")
+	rootCmd.PersistentFlags().String("provider", "", "LLM provider: claude, openai, ollama")
 	rootCmd.PersistentFlags().String("model", "", "Model to use (defaults to provider's recommended model)")
 }
