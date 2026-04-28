@@ -68,6 +68,8 @@ func runPR(cmd *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
+	diff = git.Truncate(diff, cfg.MaxDiffBytes)
+
 	log, err := git.CommitLog(base)
 	if err != nil {
 		return err
@@ -77,7 +79,7 @@ func runPR(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	p, err := provider.New(cfg.Provider, cfg.Model, cfg.APIKey())
+	p, err := provider.New(cfg.Provider, cfg.Model, cfg.APIKey(), cfg.OllamaBaseURL)
 	if err != nil {
 		return err
 	}

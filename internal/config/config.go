@@ -7,6 +7,8 @@ type Config struct {
 	Base            string // default base branch for `pr` subcommand
 	AnthropicAPIKey string
 	OpenAIAPIKey    string
+	OllamaBaseURL   string
+	MaxDiffBytes    int
 }
 
 // APIKey returns the API key for the active provider.

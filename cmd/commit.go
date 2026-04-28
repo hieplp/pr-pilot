@@ -46,8 +46,9 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
+	diff = git.Truncate(diff, cfg.MaxDiffBytes)
 
-	p, err := provider.New(cfg.Provider, cfg.Model, cfg.APIKey())
+	p, err := provider.New(cfg.Provider, cfg.Model, cfg.APIKey(), cfg.OllamaBaseURL)
 	if err != nil {
 		return err
 	}

@@ -16,6 +16,8 @@ func Load() (*Config, error) {
 	viper.SetDefault("base", "main")
 	viper.SetDefault("anthropic_api_key", "")
 	viper.SetDefault("openai_api_key", "")
+	viper.SetDefault("ollama_base_url", "http://localhost:11434/v1")
+	viper.SetDefault("max_diff_bytes", 80_000)
 
 	viper.SetEnvPrefix("PR_PILOT")
 	viper.AutomaticEnv()
@@ -46,5 +48,7 @@ func Load() (*Config, error) {
 		Base:            viper.GetString("base"),
 		AnthropicAPIKey: viper.GetString("anthropic_api_key"),
 		OpenAIAPIKey:    viper.GetString("openai_api_key"),
+		OllamaBaseURL:   viper.GetString("ollama_base_url"),
+		MaxDiffBytes:    viper.GetInt("max_diff_bytes"),
 	}, nil
 }

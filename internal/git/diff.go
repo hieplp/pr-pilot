@@ -3,6 +3,7 @@ package git
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -45,6 +46,15 @@ func CurrentBranch() (string, error) {
 func Commit(message string) error {
 	_, err := run("git", "commit", "-m", message)
 	return err
+}
+
+// Truncate caps diff to maxBytes and appends a notice when it was cut.
+// A maxBytes value of 0 or less disables truncation.
+func Truncate(diff string, maxBytes int) string {
+	if maxBytes <= 0 || len(diff) <= maxBytes {
+		return diff
+	}
+	return diff[:maxBytes] + fmt.Sprintf("\n[diff truncated — showing first %d bytes]", maxBytes)
 }
 
 // Push pushes the given branch to origin, setting the upstream if not already set.

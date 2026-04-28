@@ -30,13 +30,17 @@ func NewOpenAI(apiKey, model string) *OpenAIProvider {
 	}
 }
 
-// NewOllama creates an OpenAI-compatible provider pointed at a local Ollama instance.
-func NewOllama(model string) *OpenAIProvider {
+// NewOllama creates an OpenAI-compatible provider pointed at an Ollama instance.
+// baseURL defaults to http://localhost:11434/v1 when empty.
+func NewOllama(model, baseURL string) *OpenAIProvider {
 	if model == "" {
 		model = defaultOllamaModel
 	}
+	if baseURL == "" {
+		baseURL = ollamaBaseURL
+	}
 	cfg := openai.DefaultConfig("ollama") // key unused by Ollama but required by client
-	cfg.BaseURL = ollamaBaseURL
+	cfg.BaseURL = baseURL
 	return &OpenAIProvider{
 		client: openai.NewClientWithConfig(cfg),
 		model:  model,
