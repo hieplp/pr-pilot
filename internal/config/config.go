@@ -16,6 +16,8 @@ func (c *Config) APIKey() string {
 	switch c.Provider {
 	case "openai":
 		return c.OpenAIAPIKey
+	case "ollama":
+		return ""
 	default:
 		return c.AnthropicAPIKey
 	}

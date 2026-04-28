@@ -20,6 +20,8 @@ func Save(c *Config) error {
 	v.Set("base", c.Base)
 	v.Set("anthropic_api_key", c.AnthropicAPIKey)
 	v.Set("openai_api_key", c.OpenAIAPIKey)
+	v.Set("ollama_base_url", c.OllamaBaseURL)
+	v.Set("max_diff_bytes", c.MaxDiffBytes)
 	v.SetConfigType("toml")
 
 	return v.WriteConfigAs(filepath.Join(dir, "config.toml"))
