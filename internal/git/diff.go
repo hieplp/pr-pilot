@@ -47,6 +47,12 @@ func Commit(message string) error {
 	return err
 }
 
+// Push pushes the given branch to origin, setting the upstream if not already set.
+func Push(branch string) error {
+	_, err := run("git", "push", "-u", "origin", branch)
+	return err
+}
+
 func run(name string, args ...string) (string, error) {
 	var stdout, stderr bytes.Buffer
 	cmd := exec.Command(name, args...)

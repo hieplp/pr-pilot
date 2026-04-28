@@ -29,15 +29,46 @@ Rules:
 - Use bullet points inside each section.
 - Output ONLY the PR description — no explanation, no markdown fences around the whole thing.`
 
-// CommitPrompt builds the full prompt for commit message generation.
-func CommitPrompt(diff string) string {
-	return fmt.Sprintf("%s\n\nGenerate a commit message for the following staged diff:\n\n```diff\n%s\n```", commitSystem, diff)
+// CommitPrompt returns the system instruction and user message for commit generation.
+func CommitPrompt(diff string) (system, user string) {
+	return commitSystem, fmt.Sprintf("Generate a commit message for the following staged diff:\n\n```diff\n%s\n```", diff)
 }
 
-// PRPrompt builds the full prompt for PR description generation.
-func PRPrompt(branch, base, diff, log string) string {
-	return fmt.Sprintf(
-		"%s\n\nBranch: %s → %s\n\nCommit log:\n%s\n\nDiff:\n```diff\n%s\n```",
-		prSystem, branch, base, log, diff,
+// PRPrompt returns the system instruction and user message for PR description generation.
+func PRPrompt(branch, base, diff, log string) (system, user string) {
+	return prSystem, fmt.Sprintf(
+		"Branch: %s → %s\n\nCommit log:\n%s\n\nDiff:\n```diff\n%s\n```",
+		branch, base, log, diff,
 	)
+}
+
+// PRTitle extracts a short PR title from the first non-empty line of a generated PR body.
+func PRTitle(body string) string {
+	for _, line := range splitLines(body) {
+		if line != "" && line != "## Summary" {
+			// strip leading markdown heading markers
+			for len(line) > 0 && (line[0] == '#' || line[0] == ' ') {
+				line = line[1:]
+			}
+			if line != "" {
+				return line
+			}
+		}
+	}
+	return "PR description"
+}
+
+func splitLines(s string) []string {
+	var lines []string
+	start := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == '\n' {
+			lines = append(lines, s[start:i])
+			start = i + 1
+		}
+	}
+	if start < len(s) {
+		lines = append(lines, s[start:])
+	}
+	return lines
 }

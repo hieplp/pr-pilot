@@ -31,12 +31,15 @@ func NewClaude(apiKey, model string) *ClaudeProvider {
 
 func (p *ClaudeProvider) Name() string { return "claude" }
 
-func (p *ClaudeProvider) Complete(ctx context.Context, prompt string) (string, error) {
+func (p *ClaudeProvider) Complete(ctx context.Context, system, user string) (string, error) {
 	msg, err := p.client.Messages.New(ctx, anthropic.MessageNewParams{
 		Model:     anthropic.Model(p.model),
 		MaxTokens: 1024,
+		System: []anthropic.TextBlockParam{
+			{Text: system},
+		},
 		Messages: []anthropic.MessageParam{
-			anthropic.NewUserMessage(anthropic.NewTextBlock(prompt)),
+			anthropic.NewUserMessage(anthropic.NewTextBlock(user)),
 		},
 	})
 	if err != nil {

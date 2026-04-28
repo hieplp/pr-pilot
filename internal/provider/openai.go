@@ -46,11 +46,12 @@ func NewOllama(model string) *OpenAIProvider {
 
 func (p *OpenAIProvider) Name() string { return p.name }
 
-func (p *OpenAIProvider) Complete(ctx context.Context, prompt string) (string, error) {
+func (p *OpenAIProvider) Complete(ctx context.Context, system, user string) (string, error) {
 	resp, err := p.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 		Model: p.model,
 		Messages: []openai.ChatCompletionMessage{
-			{Role: openai.ChatMessageRoleUser, Content: prompt},
+			{Role: openai.ChatMessageRoleSystem, Content: system},
+			{Role: openai.ChatMessageRoleUser, Content: user},
 		},
 	})
 	if err != nil {

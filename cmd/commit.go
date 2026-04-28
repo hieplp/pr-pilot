@@ -50,10 +50,10 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	promptStr := prompt.CommitPrompt(diff)
+	system, user := prompt.CommitPrompt(diff)
 
 	for {
-		msg, err := p.Complete(cmd.Context(), promptStr)
+		msg, err := p.Complete(cmd.Context(), system, user)
 		if err != nil {
 			return err
 		}
