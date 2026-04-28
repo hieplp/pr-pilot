@@ -20,10 +20,12 @@ var commitCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(commitCmd)
 	commitCmd.Flags().BoolP("yes", "y", false, "Accept generated message without interactive review")
+	commitCmd.Flags().BoolP("commit", "c", false, "Run git commit with the accepted message")
 }
 
 func runCommit(cmd *cobra.Command, _ []string) error {
 	yes, _ := cmd.Flags().GetBool("yes")
+	doCommit, _ := cmd.Flags().GetBool("commit")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -58,6 +60,9 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 
 		if yes {
 			fmt.Println(msg)
+			if doCommit {
+				return git.Commit(msg)
+			}
 			return nil
 		}
 
@@ -69,6 +74,9 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 		switch result.Action {
 		case tui.ActionAccept, tui.ActionEdit:
 			fmt.Println(result.Content)
+			if doCommit {
+				return git.Commit(result.Content)
+			}
 			return nil
 		case tui.ActionRegenerate:
 			continue

@@ -41,6 +41,12 @@ func CurrentBranch() (string, error) {
 	return run("git", "rev-parse", "--abbrev-ref", "HEAD")
 }
 
+// Commit runs `git commit -m <message>`.
+func Commit(message string) error {
+	_, err := run("git", "commit", "-m", message)
+	return err
+}
+
 func run(name string, args ...string) (string, error) {
 	var stdout, stderr bytes.Buffer
 	cmd := exec.Command(name, args...)
