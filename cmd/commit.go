@@ -38,7 +38,7 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	p, err := provider.New(cfg.Provider, cfg.Model)
+	p, err := provider.New(cfg.Provider, cfg.Model, cfg.APIKey())
 	if err != nil {
 		return err
 	}

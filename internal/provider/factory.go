@@ -1,17 +1,14 @@
 package provider
 
-import (
-	"fmt"
-	"os"
-)
+import "fmt"
 
-// New returns a Provider for the given name, reading API keys from the environment.
-func New(name, model string) (Provider, error) {
+// New returns a Provider for the given name and API key.
+func New(name, model, apiKey string) (Provider, error) {
 	switch name {
 	case "claude", "":
-		return NewClaude(os.Getenv("ANTHROPIC_API_KEY"), model), nil
+		return NewClaude(apiKey, model), nil
 	case "openai":
-		return NewOpenAI(os.Getenv("OPENAI_API_KEY"), model), nil
+		return NewOpenAI(apiKey, model), nil
 	case "ollama":
 		return NewOllama(model), nil
 	default:

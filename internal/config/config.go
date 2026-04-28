@@ -8,9 +8,21 @@ import (
 )
 
 type Config struct {
-	Provider string
-	Model    string
-	Base     string // default base branch for `pr` subcommand
+	Provider        string
+	Model           string
+	Base            string // default base branch for `pr` subcommand
+	AnthropicAPIKey string
+	OpenAIAPIKey    string
+}
+
+// APIKey returns the API key for the active provider.
+func (c *Config) APIKey() string {
+	switch c.Provider {
+	case "openai":
+		return c.OpenAIAPIKey
+	default:
+		return c.AnthropicAPIKey
+	}
 }
 
 // Load reads config in precedence order:
@@ -23,9 +35,14 @@ func Load() (*Config, error) {
 	viper.SetDefault("provider", "claude")
 	viper.SetDefault("model", "")
 	viper.SetDefault("base", "main")
+	viper.SetDefault("anthropic_api_key", "")
+	viper.SetDefault("openai_api_key", "")
 
 	viper.SetEnvPrefix("PR_PILOT")
 	viper.AutomaticEnv()
+	// Also bind bare env vars so existing ANTHROPIC_API_KEY / OPENAI_API_KEY still work.
+	viper.BindEnv("anthropic_api_key", "ANTHROPIC_API_KEY")
+	viper.BindEnv("openai_api_key", "OPENAI_API_KEY")
 
 	// Global config (lowest file priority).
 	viper.SetConfigName("config")
@@ -45,9 +62,11 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		Provider: viper.GetString("provider"),
-		Model:    viper.GetString("model"),
-		Base:     viper.GetString("base"),
+		Provider:        viper.GetString("provider"),
+		Model:           viper.GetString("model"),
+		Base:            viper.GetString("base"),
+		AnthropicAPIKey: viper.GetString("anthropic_api_key"),
+		OpenAIAPIKey:    viper.GetString("openai_api_key"),
 	}, nil
 }
 
