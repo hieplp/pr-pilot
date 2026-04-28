@@ -1,14 +1,6 @@
 package tui
 
-import (
-	"github.com/charmbracelet/huh"
-)
-
-var providerDefaults = map[string]string{
-	"claude": "claude-sonnet-4-6",
-	"openai": "gpt-4o",
-	"ollama": "llama3.2",
-}
+import "github.com/charmbracelet/huh"
 
 // ConfigFormResult holds values collected from the config TUI form.
 type ConfigFormResult struct {
