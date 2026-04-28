@@ -22,7 +22,7 @@ func TestCommitPrompt(t *testing.T) {
 }
 
 func TestPRPrompt(t *testing.T) {
-	system, user := prompt.PRPrompt("feature/auth", "main", "diff content", "abc1234 add login")
+	system, user := prompt.PRPrompt("feature/auth", "main", "diff content", "abc1234 add login", "")
 
 	if !strings.Contains(strings.ToLower(system), "pull request") {
 		t.Error("system prompt should mention pull request")
@@ -31,6 +31,26 @@ func TestPRPrompt(t *testing.T) {
 		if !strings.Contains(user, want) {
 			t.Errorf("user message should contain %q", want)
 		}
+	}
+}
+
+func TestPRPromptWithTemplate(t *testing.T) {
+	tmpl := "## What changed\n## Why"
+	_, user := prompt.PRPrompt("feat/x", "main", "diff", "abc add x", tmpl)
+
+	if !strings.Contains(user, tmpl) {
+		t.Error("user message should contain the PR template")
+	}
+	if !strings.Contains(user, "Follow this PR template") {
+		t.Error("user message should include template instruction")
+	}
+}
+
+func TestPRPromptNoTemplate(t *testing.T) {
+	_, user := prompt.PRPrompt("feat/x", "main", "diff", "abc add x", "")
+
+	if strings.Contains(user, "Follow this PR template") {
+		t.Error("user message should not include template section when template is empty")
 	}
 }
 

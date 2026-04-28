@@ -35,10 +35,15 @@ func CommitPrompt(diff string) (system, user string) {
 }
 
 // PRPrompt returns the system instruction and user message for PR description generation.
-func PRPrompt(branch, base, diff, log string) (system, user string) {
+// template is the repo's PR template content; pass empty string when none exists.
+func PRPrompt(branch, base, diff, log, template string) (system, user string) {
+	var tmplSection string
+	if template != "" {
+		tmplSection = fmt.Sprintf("\n\nFollow this PR template structure:\n%s", template)
+	}
 	return prSystem, fmt.Sprintf(
-		"Branch: %s → %s\n\nCommit log:\n%s\n\nDiff:\n```diff\n%s\n```",
-		branch, base, log, diff,
+		"Branch: %s → %s\n\nCommit log:\n%s\n\nDiff:\n```diff\n%s\n```%s",
+		branch, base, log, diff, tmplSection,
 	)
 }
 

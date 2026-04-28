@@ -38,9 +38,15 @@ var hookUninstallCmd = &cobra.Command{
 	RunE:  runHookUninstall,
 }
 
+var hookStatusCmd = &cobra.Command{
+	Use:   "status",
+	Short: "Show whether the pr-pilot hook is installed in the current repo",
+	RunE:  runHookStatus,
+}
+
 func init() {
 	rootCmd.AddCommand(hookCmd)
-	hookCmd.AddCommand(hookInstallCmd, hookUninstallCmd)
+	hookCmd.AddCommand(hookInstallCmd, hookUninstallCmd, hookStatusCmd)
 }
 
 func hookFilePath() (string, error) {
@@ -83,6 +89,29 @@ func runHookInstall(_ *cobra.Command, _ []string) error {
 
 	fmt.Printf("Hook installed: %s\n", path)
 	fmt.Println("pr-pilot will now pre-fill commit messages automatically.")
+	return nil
+}
+
+func runHookStatus(_ *cobra.Command, _ []string) error {
+	path, err := hookFilePath()
+	if err != nil {
+		return err
+	}
+
+	content, err := os.ReadFile(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			fmt.Println("Not installed.")
+			return nil
+		}
+		return err
+	}
+
+	if strings.Contains(string(content), hookSentinel) {
+		fmt.Printf("Installed: %s\n", path)
+	} else {
+		fmt.Printf("A hook exists at %s but was not installed by pr-pilot.\n", path)
+	}
 	return nil
 }
 

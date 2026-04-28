@@ -75,6 +75,7 @@ func runConfig(_ *cobra.Command, _ []string) error {
 		Base:            cfg.Base,
 		AnthropicAPIKey: cfg.AnthropicAPIKey,
 		OpenAIAPIKey:    cfg.OpenAIAPIKey,
+		OllamaBaseURL:   cfg.OllamaBaseURL,
 	})
 	if err != nil {
 		return err
@@ -89,6 +90,7 @@ func runConfig(_ *cobra.Command, _ []string) error {
 	cfg.Base = result.Base
 	cfg.AnthropicAPIKey = result.AnthropicAPIKey
 	cfg.OpenAIAPIKey = result.OpenAIAPIKey
+	cfg.OllamaBaseURL = result.OllamaBaseURL
 
 	if err := config.Save(cfg); err != nil {
 		return err

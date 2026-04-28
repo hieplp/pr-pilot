@@ -9,6 +9,7 @@ type ConfigFormResult struct {
 	Base            string
 	AnthropicAPIKey string
 	OpenAIAPIKey    string
+	OllamaBaseURL   string
 }
 
 // ConfigForm opens an interactive form pre-filled with current values.
@@ -42,6 +43,12 @@ func ConfigForm(current ConfigFormResult) (ConfigFormResult, bool, error) {
 				EchoMode(huh.EchoModePassword).
 				Value(&result.OpenAIAPIKey),
 		).WithHideFunc(func() bool { return result.Provider != "openai" }),
+		huh.NewGroup(
+			huh.NewInput().
+				Title("Ollama base URL").
+				Description("Default: http://localhost:11434/v1").
+				Value(&result.OllamaBaseURL),
+		).WithHideFunc(func() bool { return result.Provider != "ollama" }),
 		huh.NewGroup(
 			huh.NewInput().
 				Title("Model").

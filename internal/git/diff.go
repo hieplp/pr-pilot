@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -46,6 +47,23 @@ func CurrentBranch() (string, error) {
 func Commit(message string) error {
 	_, err := run("git", "commit", "-m", message)
 	return err
+}
+
+// PRTemplate returns the contents of the repo's PR template file if one exists.
+// Checks common locations used by GitHub: .github/, docs/, and repo root.
+func PRTemplate() string {
+	candidates := []string{
+		".github/pull_request_template.md",
+		".github/PULL_REQUEST_TEMPLATE.md",
+		"docs/pull_request_template.md",
+		"pull_request_template.md",
+	}
+	for _, p := range candidates {
+		if b, err := os.ReadFile(p); err == nil {
+			return string(b)
+		}
+	}
+	return ""
 }
 
 // Truncate caps diff to maxBytes and appends a notice when it was cut.

@@ -8,6 +8,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-isatty"
 )
 
 // Action represents what the user chose in the review screen.
@@ -30,7 +31,13 @@ type Result struct {
 // Review shows generated content in a TUI and waits for the user to accept,
 // edit, regenerate, or quit. On ActionEdit the external $EDITOR is opened and
 // ActionAccept is returned with the edited content.
+// When stdout is not a TTY (CI / piped), prints the content and returns ActionAccept immediately.
 func Review(content string) (Result, error) {
+	if !isatty.IsTerminal(os.Stdout.Fd()) {
+		fmt.Println(content)
+		return Result{Action: ActionAccept, Content: content}, nil
+	}
+
 	p := tea.NewProgram(reviewModel{content: content}, tea.WithAltScreen())
 	final, err := p.Run()
 	if err != nil {

@@ -32,12 +32,17 @@ func init() {
 	prCmd.Flags().BoolP("yes", "y", false, "Accept generated description without interactive review")
 	prCmd.Flags().Bool("push", false, "Push the current branch to origin before creating the PR")
 	prCmd.Flags().Bool("create", false, "Create the PR on GitHub using `gh` after accepting the description")
+	prCmd.Flags().Bool("draft", false, "Create the PR as a draft (implies --create)")
 }
 
 func runPR(cmd *cobra.Command, _ []string) error {
 	yes, _ := cmd.Flags().GetBool("yes")
 	doPush, _ := cmd.Flags().GetBool("push")
+	draft, _ := cmd.Flags().GetBool("draft")
 	doCreate, _ := cmd.Flags().GetBool("create")
+	if draft {
+		doCreate = true
+	}
 
 	if doCreate {
 		if _, err := exec.LookPath("gh"); err != nil {
@@ -84,7 +89,7 @@ func runPR(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	system, user := prompt.PRPrompt(branch, base, diff, log)
+	system, user := prompt.PRPrompt(branch, base, diff, log, git.PRTemplate())
 
 	for {
 		msg, err := tui.Spin("Generating PR description…", func() (string, error) {
@@ -135,19 +140,19 @@ func runPR(cmd *cobra.Command, _ []string) error {
 		}
 
 		if doCreate {
-			return createGitHubPR(body, base)
+			return createGitHubPR(body, base, draft)
 		}
 		return nil
 	}
 }
 
-func createGitHubPR(body, base string) error {
+func createGitHubPR(body, base string, draft bool) error {
 	title := prompt.PRTitle(body)
-	out, err := exec.Command("gh", "pr", "create",
-		"--title", title,
-		"--body", body,
-		"--base", base,
-	).CombinedOutput()
+	args := []string{"pr", "create", "--title", title, "--body", body, "--base", base}
+	if draft {
+		args = append(args, "--draft")
+	}
+	out, err := exec.Command("gh", args...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("gh pr create failed: %s", strings.TrimSpace(string(out)))
 	}

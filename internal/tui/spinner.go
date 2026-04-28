@@ -2,10 +2,13 @@ package tui
 
 import (
 	"errors"
+	"fmt"
+	"os"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-isatty"
 )
 
 type workDoneMsg struct {
@@ -48,8 +51,13 @@ func (m spinModel) View() string {
 }
 
 // Spin shows an animated spinner with label while work runs in the background.
-// Returns when work completes or ctrl+c is pressed.
+// Falls back to a plain stderr message when stdout is not a TTY (CI / piped).
 func Spin(label string, work func() (string, error)) (string, error) {
+	if !isatty.IsTerminal(os.Stdout.Fd()) {
+		fmt.Fprintf(os.Stderr, "%s\n", label)
+		return work()
+	}
+
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
