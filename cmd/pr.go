@@ -11,6 +11,7 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/hieplp/pr-pilot/internal/config"
+	"github.com/hieplp/pr-pilot/internal/dryrun"
 	"github.com/hieplp/pr-pilot/internal/git"
 	"github.com/hieplp/pr-pilot/internal/prompt"
 	"github.com/hieplp/pr-pilot/internal/provider"
@@ -35,6 +36,7 @@ func init() {
 	prCmd.Flags().Bool("push", false, "Push the current branch to origin before creating the PR")
 	prCmd.Flags().Bool("create", false, "Create the PR on GitHub using `gh` after accepting the description")
 	prCmd.Flags().Bool("draft", false, "Create the PR as a draft (implies --create)")
+	prCmd.Flags().Bool("dry-run", false, "Estimate prompt tokens and cost without calling the provider")
 }
 
 func runPR(cmd *cobra.Command, _ []string) error {
@@ -42,6 +44,7 @@ func runPR(cmd *cobra.Command, _ []string) error {
 	doPush, _ := cmd.Flags().GetBool("push")
 	draft, _ := cmd.Flags().GetBool("draft")
 	doCreate, _ := cmd.Flags().GetBool("create")
+	dryRun, _ := cmd.Flags().GetBool("dry-run")
 	if draft {
 		doCreate = true
 	}
@@ -92,6 +95,10 @@ func runPR(cmd *cobra.Command, _ []string) error {
 	}
 
 	system, user := prompt.PRPrompt(branch, base, diff, log, git.PRTemplate())
+	if dryRun {
+		fmt.Print(dryrun.Estimate(cfg.Provider, cfg.Model, system, user, 1024).String())
+		return nil
+	}
 
 	for {
 		msg, err := tui.Spin("Generating PR description…", func() (string, error) {

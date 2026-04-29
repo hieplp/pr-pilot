@@ -34,6 +34,9 @@ pr-pilot changelog
 # Generate a changelog for a specific range
 pr-pilot changelog --from v1.2.0 --to HEAD
 
+# Estimate prompt tokens and max cost without calling the provider
+pr-pilot pr --dry-run
+
 # Use a specific provider and model
 pr-pilot --provider openai --model gpt-4o commit
 ```
@@ -106,4 +109,4 @@ go build -o pr-pilot .
 - [x] Prepare-commit-msg hook installer (`pr-pilot hook install`)
 - [x] GitHub PR creation via `gh` (`pr-pilot pr --create`)
 - [x] Changelog generation
-- [ ] Token cost dry-run (`--dry-run`)
+- [x] Token cost dry-run (`--dry-run`)

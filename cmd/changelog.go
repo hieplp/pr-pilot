@@ -8,6 +8,7 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/hieplp/pr-pilot/internal/config"
+	"github.com/hieplp/pr-pilot/internal/dryrun"
 	"github.com/hieplp/pr-pilot/internal/git"
 	"github.com/hieplp/pr-pilot/internal/prompt"
 	"github.com/hieplp/pr-pilot/internal/provider"
@@ -29,10 +30,12 @@ func init() {
 	changelogCmd.Flags().String("from", "", "Start revision, tag, or branch (default: latest tag)")
 	changelogCmd.Flags().String("to", "HEAD", "End revision, tag, or branch")
 	changelogCmd.Flags().BoolP("yes", "y", false, "Accept generated changelog without interactive review")
+	changelogCmd.Flags().Bool("dry-run", false, "Estimate prompt tokens and cost without calling the provider")
 }
 
 func runChangelog(cmd *cobra.Command, _ []string) error {
 	yes, _ := cmd.Flags().GetBool("yes")
+	dryRun, _ := cmd.Flags().GetBool("dry-run")
 	from, _ := cmd.Flags().GetString("from")
 	to, _ := cmd.Flags().GetString("to")
 	if from == "" {
@@ -73,6 +76,10 @@ func runChangelog(cmd *cobra.Command, _ []string) error {
 	}
 
 	system, user := prompt.ChangelogPrompt(from, to, diff, log)
+	if dryRun {
+		fmt.Print(dryrun.Estimate(cfg.Provider, cfg.Model, system, user, 1024).String())
+		return nil
+	}
 
 	for {
 		msg, err := tui.Spin("Generating changelog…", func() (string, error) {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/atotto/clipboard"
 	"github.com/hieplp/pr-pilot/internal/config"
+	"github.com/hieplp/pr-pilot/internal/dryrun"
 	"github.com/hieplp/pr-pilot/internal/git"
 	"github.com/hieplp/pr-pilot/internal/prompt"
 	"github.com/hieplp/pr-pilot/internal/provider"
@@ -25,11 +26,13 @@ func init() {
 	rootCmd.AddCommand(commitCmd)
 	commitCmd.Flags().BoolP("yes", "y", false, "Accept generated message without interactive review")
 	commitCmd.Flags().BoolP("commit", "c", false, "Run git commit with the accepted message")
+	commitCmd.Flags().Bool("dry-run", false, "Estimate prompt tokens and cost without calling the provider")
 }
 
 func runCommit(cmd *cobra.Command, _ []string) error {
 	yes, _ := cmd.Flags().GetBool("yes")
 	doCommit, _ := cmd.Flags().GetBool("commit")
+	dryRun, _ := cmd.Flags().GetBool("dry-run")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -56,6 +59,10 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 	}
 
 	system, user := prompt.CommitPrompt(diff)
+	if dryRun {
+		fmt.Print(dryrun.Estimate(cfg.Provider, cfg.Model, system, user, 1024).String())
+		return nil
+	}
 
 	for {
 		msg, err := tui.Spin("Generating commit message…", func() (string, error) {
