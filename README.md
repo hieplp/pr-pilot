@@ -41,6 +41,8 @@ export ANTHROPIC_API_KEY=your-key   # for Claude (default)
 export OPENAI_API_KEY=your-key      # for OpenAI
 ```
 
+Configuration precedence is: CLI flags → `PR_PILOT_*` env vars → `.pr-pilot.toml` → `~/.config/pr-pilot/config.toml`.
+
 Or create a config file at `~/.config/pr-pilot/config.toml`:
 
 ```toml
@@ -70,7 +72,7 @@ pr-pilot/
     ├── git/          # git diff / log helpers
     ├── prompt/       # prompt building and templates
     ├── config/       # Viper-based config loader
-    └── store/        # SQLite usage log
+    └── tui/          # interactive review/config screens
 ```
 
 ## Development
@@ -90,11 +92,11 @@ go build -o pr-pilot .
 
 - [x] CLI skeleton (Cobra), `commit` and `pr` subcommands
 - [x] `Provider` interface
-- [ ] Claude / OpenAI / Ollama provider implementations
-- [ ] Git diff and log helpers
-- [ ] Config file + env var support
-- [ ] Interactive TUI review before committing
-- [ ] Pre-commit hook installer (`pr-pilot hook install`)
-- [ ] Direct GitHub/GitLab PR creation
+- [x] Claude / OpenAI / Ollama provider implementations
+- [x] Git diff and log helpers
+- [x] Config file + env var support
+- [x] Interactive TUI review before accepting output
+- [x] Prepare-commit-msg hook installer (`pr-pilot hook install`)
+- [x] GitHub PR creation via `gh` (`pr-pilot pr --create`)
 - [ ] Changelog generation
 - [ ] Token cost dry-run (`--dry-run`)

@@ -65,6 +65,8 @@ func TestPRTitle(t *testing.T) {
 		{"empty body", "", "PR description"},
 		{"only heading with no content", "## Summary\n", "PR description"},
 		{"heading markers stripped", "### Add feature", "Add feature"},
+		{"bullet marker stripped", "## Summary\n- Add feature", "Add feature"},
+		{"section headings skipped", "## Motivation\n## Changes\n- Add feature", "Add feature"},
 	}
 
 	for _, tt := range tests {

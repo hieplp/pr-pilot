@@ -1,6 +1,9 @@
 package prompt
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 const commitSystem = `You are an expert software engineer writing git commit messages.
 Follow the Conventional Commits specification strictly:
@@ -50,15 +53,21 @@ func PRPrompt(branch, base, diff, log, template string) (system, user string) {
 // PRTitle extracts a short PR title from the first non-empty line of a generated PR body.
 func PRTitle(body string) string {
 	for _, line := range splitLines(body) {
-		if line != "" && line != "## Summary" {
-			// strip leading markdown heading markers
-			for len(line) > 0 && (line[0] == '#' || line[0] == ' ') {
-				line = line[1:]
-			}
-			if line != "" {
-				return line
-			}
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "## ") {
+			continue
 		}
+
+		line = strings.TrimLeft(line, "# ")
+		line = strings.TrimLeft(line, "-*• ")
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		if len(line) > 72 {
+			line = strings.TrimSpace(line[:72])
+		}
+		return line
 	}
 	return "PR description"
 }

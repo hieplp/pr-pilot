@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/atotto/clipboard"
 	"github.com/hieplp/pr-pilot/internal/config"
@@ -93,7 +95,9 @@ func runPR(cmd *cobra.Command, _ []string) error {
 
 	for {
 		msg, err := tui.Spin("Generating PR description…", func() (string, error) {
-			return p.Complete(cmd.Context(), system, user)
+			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
+			defer cancel()
+			return p.Complete(ctx, system, user)
 		})
 		if err != nil {
 			return err

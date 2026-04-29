@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/atotto/clipboard"
 	"github.com/hieplp/pr-pilot/internal/config"
@@ -57,7 +59,9 @@ func runCommit(cmd *cobra.Command, _ []string) error {
 
 	for {
 		msg, err := tui.Spin("Generating commit message…", func() (string, error) {
-			return p.Complete(cmd.Context(), system, user)
+			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
+			defer cancel()
+			return p.Complete(ctx, system, user)
 		})
 		if err != nil {
 			return err

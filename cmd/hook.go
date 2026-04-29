@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -50,20 +51,22 @@ func init() {
 }
 
 func hookFilePath() (string, error) {
-	dir, err := os.Getwd()
+	out, err := exec.Command("git", "rev-parse", "--git-path", "hooks/prepare-commit-msg").Output()
+	if err != nil {
+		return "", errors.New("not inside a git repository")
+	}
+	path := strings.TrimSpace(string(out))
+	if path == "" {
+		return "", errors.New("could not resolve git hook path")
+	}
+	if filepath.IsAbs(path) {
+		return path, nil
+	}
+	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
-	for {
-		if info, err := os.Stat(filepath.Join(dir, ".git")); err == nil && info.IsDir() {
-			return filepath.Join(dir, ".git", "hooks", "prepare-commit-msg"), nil
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return "", errors.New("not inside a git repository")
-		}
-		dir = parent
-	}
+	return filepath.Join(wd, path), nil
 }
 
 func runHookInstall(_ *cobra.Command, _ []string) error {

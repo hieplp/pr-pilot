@@ -177,10 +177,6 @@ func runConfigSet(_ *cobra.Command, args []string) error {
 
 	setter, ok := allowedKeys[key]
 	if !ok {
-		keys := make([]string, 0, len(allowedKeys))
-		for k := range allowedKeys {
-			keys = append(keys, k)
-		}
 		return fmt.Errorf("unknown key %q — allowed: provider, model, base, anthropic_api_key, openai_api_key, ollama_base_url, max_diff_bytes", key)
 	}
 
