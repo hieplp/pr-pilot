@@ -54,6 +54,19 @@ func TestPRPromptNoTemplate(t *testing.T) {
 	}
 }
 
+func TestChangelogPrompt(t *testing.T) {
+	system, user := prompt.ChangelogPrompt("v1.0.0", "HEAD", "diff content", "abc1234 add changelog")
+
+	if !strings.Contains(strings.ToLower(system), "changelog") {
+		t.Error("system prompt should mention changelog")
+	}
+	for _, want := range []string{"v1.0.0", "HEAD", "diff content", "abc1234 add changelog"} {
+		if !strings.Contains(user, want) {
+			t.Errorf("user message should contain %q", want)
+		}
+	}
+}
+
 func TestPRTitle(t *testing.T) {
 	tests := []struct {
 		name string

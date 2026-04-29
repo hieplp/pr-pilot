@@ -1,6 +1,6 @@
 # pr-pilot
 
-A CLI tool that generates commit messages and PR descriptions from git diffs using LLMs (Claude, OpenAI, Ollama).
+A CLI tool that generates commit messages, PR descriptions, and changelogs from git diffs using LLMs (Claude, OpenAI, Ollama).
 
 ## Installation
 
@@ -27,6 +27,12 @@ pr-pilot pr
 
 # Diff against a custom base branch
 pr-pilot pr --base develop
+
+# Generate a changelog from the latest tag to HEAD
+pr-pilot changelog
+
+# Generate a changelog for a specific range
+pr-pilot changelog --from v1.2.0 --to HEAD
 
 # Use a specific provider and model
 pr-pilot --provider openai --model gpt-4o commit
@@ -66,7 +72,8 @@ pr-pilot/
 ├── cmd/
 │   ├── root.go       # global --provider / --model flags
 │   ├── commit.go     # staged diff → commit message
-│   └── pr.go         # branch diff → PR description
+│   ├── pr.go         # branch diff → PR description
+│   └── changelog.go  # revision range → changelog entry
 └── internal/
     ├── provider/     # LLM provider abstraction + implementations
     ├── git/          # git diff / log helpers
@@ -98,5 +105,5 @@ go build -o pr-pilot .
 - [x] Interactive TUI review before accepting output
 - [x] Prepare-commit-msg hook installer (`pr-pilot hook install`)
 - [x] GitHub PR creation via `gh` (`pr-pilot pr --create`)
-- [ ] Changelog generation
+- [x] Changelog generation
 - [ ] Token cost dry-run (`--dry-run`)

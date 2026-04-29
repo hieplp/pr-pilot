@@ -33,14 +33,40 @@ func BranchDiff(base string) (string, error) {
 	return out, nil
 }
 
+// RangeDiff returns the diff for a revision range (git diff <from>..<to>).
+func RangeDiff(from, to string) (string, error) {
+	out, err := run("git", "diff", from+".."+to)
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(out) == "" {
+		return "", fmt.Errorf("no changes between %s and %s", from, to)
+	}
+	return out, nil
+}
+
 // CommitLog returns the one-line commit log between base and HEAD.
 func CommitLog(base string) (string, error) {
 	return run("git", "log", "--oneline", base+"..HEAD")
 }
 
+// RangeCommitLog returns the one-line commit log for a revision range.
+func RangeCommitLog(from, to string) (string, error) {
+	return run("git", "log", "--oneline", from+".."+to)
+}
+
 // CurrentBranch returns the name of the current branch.
 func CurrentBranch() (string, error) {
 	return run("git", "rev-parse", "--abbrev-ref", "HEAD")
+}
+
+// LatestTag returns the most recent reachable tag.
+func LatestTag() (string, error) {
+	out, err := run("git", "describe", "--tags", "--abbrev=0")
+	if err != nil {
+		return "", fmt.Errorf("could not find latest tag; pass --from explicitly: %w", err)
+	}
+	return strings.TrimSpace(out), nil
 }
 
 // Commit runs `git commit -m <message>`.

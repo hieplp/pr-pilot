@@ -32,6 +32,22 @@ Rules:
 - Use bullet points inside each section.
 - Output ONLY the PR description — no explanation, no markdown fences around the whole thing.`
 
+const changelogSystem = `You are an expert release manager writing changelog entries.
+Produce a Keep a Changelog-style Markdown entry with these sections when relevant:
+  ## Unreleased
+  ### Added
+  ### Changed
+  ### Fixed
+  ### Removed
+  ### Security
+
+Rules:
+- Group items by user-visible impact, not by commit hash.
+- Be concise and specific.
+- Mention breaking changes prominently when present.
+- Omit empty sections.
+- Output ONLY the changelog Markdown — no explanation, no markdown fences around the whole thing.`
+
 // CommitPrompt returns the system instruction and user message for commit generation.
 func CommitPrompt(diff string) (system, user string) {
 	return commitSystem, fmt.Sprintf("Generate a commit message for the following staged diff:\n\n```diff\n%s\n```", diff)
@@ -47,6 +63,14 @@ func PRPrompt(branch, base, diff, log, template string) (system, user string) {
 	return prSystem, fmt.Sprintf(
 		"Branch: %s → %s\n\nCommit log:\n%s\n\nDiff:\n```diff\n%s\n```%s",
 		branch, base, log, diff, tmplSection,
+	)
+}
+
+// ChangelogPrompt returns the system instruction and user message for changelog generation.
+func ChangelogPrompt(from, to, diff, log string) (system, user string) {
+	return changelogSystem, fmt.Sprintf(
+		"Generate a changelog for changes from %s to %s.\n\nCommit log:\n%s\n\nDiff:\n```diff\n%s\n```",
+		from, to, log, diff,
 	)
 }
 
